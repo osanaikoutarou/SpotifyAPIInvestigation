@@ -14,7 +14,7 @@ class SpotifyManager: NSObject {
     
     let SpotifyClientID = "3623294cf27f4dfe831c90917056af15"
     let SpotifyRedirectURL = URL(string: "spotify-ios-quick-start://spotify-login-callback")!
-    let secret = "f38984ba02e6490eb9bae628be68cf87"
+    var secret = ""
 
     // Set Up User Authorization
     var configuration: SPTConfiguration
@@ -40,6 +40,10 @@ class SpotifyManager: NSObject {
 
     func authorizeAndPlayURI(playUrl: String) {
         appRemote.authorizeAndPlayURI(playUrl)
+    }
+
+    func setSecret(value: String) {
+        secret = value
     }
 }
 

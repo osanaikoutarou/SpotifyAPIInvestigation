@@ -11,9 +11,18 @@ import SpotifyiOS
 struct ContentView: View {
 
     @State var trackItems: [TrackItem] = []
+    @State var secret: String = "f38984ba02e6490eb9bae628be68..."
 
     var body: some View {
         VStack {
+
+            TextField("input secret", text: $secret)
+                .onChange(of: secret) { newValue in
+                    SpotifyManager.shared.setSecret(value: newValue)
+                }
+
+            Spacer().frame(height: 30)
+
             Button {
 
                 Task {
