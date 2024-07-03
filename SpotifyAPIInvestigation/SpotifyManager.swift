@@ -197,12 +197,67 @@ extension SpotifyManager {
             "type": "track"
         ]
 
-        let response = await AF.request("https://api.spotify.com/v1/search", parameters: parameters, headers: headers).serializingDecodable(SearchResponse.self).response
+        let request = AF.request("https://api.spotify.com/v1/search",
+                                 parameters: parameters,
+                                 headers: headers)
+        let response = await request.serializingDecodable(SearchResponse.self).response
+
+        showConsoleLog(title: "[Search]",
+                       path: "search",
+                       request: request,
+                       response: response.response,
+                       data: response.data,
+                       showCurl: true)
+
         switch response.result {
         case .success(let searchResponse):
             return searchResponse.tracks.items
         case .failure(let error):
             throw error
+        }
+    }
+}
+
+func showConsoleLog(title: String,
+                    path: String,
+                    parameter: Encodable? = nil,
+                    request: DataRequest? = nil,
+                    response: HTTPURLResponse? = nil,
+                    data: Data? = nil,
+                    showCurl: Bool = true) {
+    print("--------------------[API]----------------------")
+    print("[Title]", title)
+    print("[Path]", path)
+    if let parameter = parameter {
+        print("[Parameter]", parameter.toJsonDictionary() ?? [:])
+    }
+    if let response = response {
+        print("[StatusCode]", response.statusCode)
+    }
+    if let data = data {
+        print("[Dic]", data.convertToDictionary() ?? [:])
+    }
+    if let request = request {
+        print("[curl]", request.cURLDescription())
+    }
+    print("------------------[API end]---------------------")
+}
+
+extension Encodable {
+    func toJsonDictionary() -> [String: Any]? {
+        guard let data = try? JSONEncoder().encode(self) else { return nil }
+        return (try? JSONSerialization.jsonObject(with: data, options: .allowFragments)).flatMap { $0 as? [String: Any] }
+    }
+}
+
+extension Data {
+    func convertToDictionary() -> [String:Any]? {
+        do {
+            let dic = try JSONSerialization.jsonObject(with: self, options: []) as? [String: Any]
+            return dic
+        } catch {
+            print(error.localizedDescription)
+            return nil
         }
     }
 }

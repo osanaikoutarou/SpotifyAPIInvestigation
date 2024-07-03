@@ -83,6 +83,7 @@ struct ContentView: View {
                 LazyVStack {
                     ForEach(0..<trackItems.count, id: \.self) { index in
                         Button {
+                            print(trackItems[index].uri)
                             SpotifyManager.shared.authorizeAndPlayURI(playUrl: trackItems[index].uri)
                         } label: {
                             Text(trackItems[index].name + ":" + trackItems[index].uri)
