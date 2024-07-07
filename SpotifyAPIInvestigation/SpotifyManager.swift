@@ -96,7 +96,7 @@ extension SpotifyManager {
     }
 
     // トークン取得
-    func fetchAccessToken() async throws {
+    func fetchAccessToken() async throws -> String? {
         let headers: HTTPHeaders = [
             "Authorization": "Basic \(credentials)"
         ]
@@ -114,8 +114,10 @@ extension SpotifyManager {
         case .success(let tokenResponse):
             accessToken = tokenResponse.access_token
             print("access token", accessToken)
+            return accessToken
         case .failure(let error):
             throw error
+            return nil
         }
     }
 }
@@ -134,7 +136,6 @@ struct Artist: Decodable {
 struct TrackItem: Decodable {
     let album: Album
     let artists: [Artist]
-    let available_markets: [String]
     let disc_number: Int
     let duration_ms: Int
     let explicit: Bool
@@ -153,7 +154,6 @@ struct TrackItem: Decodable {
 struct Album: Decodable {
     let album_type: String
     let total_tracks: Int
-    let available_markets: [String]
     let external_urls: ExternalURL
     let href: String
     let id: String
@@ -194,7 +194,9 @@ extension SpotifyManager {
 
         let parameters: [String: String] = [
             "q": query,
-            "type": "track"
+            "market": "JP",
+            "type": "track",
+            "limit": "10"
         ]
 
         let request = AF.request("https://api.spotify.com/v1/search",
@@ -208,6 +210,9 @@ extension SpotifyManager {
                        response: response.response,
                        data: response.data,
                        showCurl: true)
+
+        // crash for debug
+        let d = try! JSONDecoder().decode(SearchResponse.self, from: response.data!)
 
         switch response.result {
         case .success(let searchResponse):
