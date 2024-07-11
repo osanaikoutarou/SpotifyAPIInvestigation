@@ -15,6 +15,7 @@ class SpotifyManager: NSObject {
     let SpotifyClientID = "3623294cf27f4dfe831c90917056af15"
     let SpotifyRedirectURL = URL(string: "spotify-ios-quick-start://spotify-login-callback")!
     var secret = ""
+    var currentSPTAppRemotePlayerState: SPTAppRemotePlayerState?
 
     // Set Up User Authorization
     var configuration: SPTConfiguration
@@ -38,8 +39,19 @@ class SpotifyManager: NSObject {
         }
     }
 
+    func authorizeAndPlayURI() {
+        appRemote.authorizeAndPlayURI("", asRadio: true)
+    }
+
     func authorizeAndPlayURI(playUrl: String) {
-        appRemote.authorizeAndPlayURI(playUrl)
+        //            appRemote.authorizeAndPlayURI(playUrl, asRadio: true)
+        guard let playerAPI = appRemote.playerAPI else {
+            print("playerAPI is nil")
+            return
+        }
+        appRemote.playerAPI?.play(playUrl, asRadio: true, callback: { result, error in
+            print(error?.localizedDescription)
+        })
     }
 
     func setSecret(value: String) {
@@ -58,9 +70,13 @@ extension SpotifyManager: SPTAppRemoteDelegate {
                 debugPrint(error.localizedDescription)
             }
         })
+
+        NotificationCenter.default.post(name: Notification.Name.SPTAppRemoteConnected, object: self)
     }
     func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
         print("Disconnected")
+        NotificationCenter.default.post(name: Notification.Name.SPTAppRemoteDisConnected, object: self)
+
     }
 
     func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
@@ -71,6 +87,8 @@ extension SpotifyManager: SPTAppRemoteDelegate {
 extension SpotifyManager: SPTAppRemotePlayerStateDelegate {
     func playerStateDidChange(_ playerState: any SPTAppRemotePlayerState) {
         print("playerStateDidChange", playerState)
+        self.currentSPTAppRemotePlayerState = playerState
+        NotificationCenter.default.post(name: Notification.Name.playerStateDidChange, object: self)
     }
 }
 
@@ -266,3 +284,13 @@ extension Data {
         }
     }
 }
+
+//MARK: -
+
+
+extension NSNotification.Name {
+    static let SPTAppRemoteConnected = NSNotification.Name.init("SPTAppRemoteConnected")
+    static let SPTAppRemoteDisConnected = NSNotification.Name.init("SPTAppRemoteDisConnected")
+    static let playerStateDidChange = NSNotification.Name.init("playerStateDidChange")
+}
+

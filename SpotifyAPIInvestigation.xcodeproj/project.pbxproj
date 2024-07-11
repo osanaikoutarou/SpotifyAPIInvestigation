@@ -14,6 +14,7 @@
 		1EE362822C28DA29002BAE40 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1EE362812C28DA29002BAE40 /* Assets.xcassets */; };
 		1EE362852C28DA29002BAE40 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1EE362842C28DA29002BAE40 /* Preview Assets.xcassets */; };
 		1EE3628D2C28E0E7002BAE40 /* SpotifyiOS in Frameworks */ = {isa = PBXBuildFile; productRef = 1EE3628C2C28E0E7002BAE40 /* SpotifyiOS */; };
+		1EE3ECCE2C4052DD002F541C /* SpotifyPlayingImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE3ECCD2C4052DD002F541C /* SpotifyPlayingImage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,6 +26,7 @@
 		1EE362842C28DA29002BAE40 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		1EE3628E2C28F1F8002BAE40 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		1EE3628F2C28F58B002BAE40 /* SpotifyAPIInvestigation-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SpotifyAPIInvestigation-Bridging-Header.h"; sourceTree = "<group>"; };
+		1EE3ECCD2C4052DD002F541C /* SpotifyPlayingImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyPlayingImage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 				1EE362832C28DA29002BAE40 /* Preview Content */,
 				1EE3628F2C28F58B002BAE40 /* SpotifyAPIInvestigation-Bridging-Header.h */,
 				1E4186BE2C34D16E00FDA002 /* SpotifyManager.swift */,
+				1EE3ECCD2C4052DD002F541C /* SpotifyPlayingImage.swift */,
 			);
 			path = SpotifyAPIInvestigation;
 			sourceTree = "<group>";
@@ -159,6 +162,7 @@
 			files = (
 				1E4186BF2C34D16E00FDA002 /* SpotifyManager.swift in Sources */,
 				1EE362802C28DA28002BAE40 /* ContentView.swift in Sources */,
+				1EE3ECCE2C4052DD002F541C /* SpotifyPlayingImage.swift in Sources */,
 				1EE3627E2C28DA28002BAE40 /* SpotifyAPIInvestigationApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

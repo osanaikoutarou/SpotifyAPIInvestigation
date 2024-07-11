@@ -7,8 +7,24 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "8D138509-D0AC-448C-BFFD-F6A0B09BEEA8"
-            shouldBeEnabled = "Yes"
+            uuid = "8544656C-1312-482A-B3CD-CE5E26D4DF08"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SpotifyAPIInvestigation/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "107"
+            endingLineNumber = "107"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E5E3010E-1D79-4AED-A9A6-709E0566812A"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SpotifyAPIInvestigation/SpotifyManager.swift"
@@ -16,86 +32,84 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "53"
             endingLineNumber = "53"
-            landmarkName = "appRemoteDidEstablishConnection(_:)"
+            landmarkName = "authorizeAndPlayURI(playUrl:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "472FBDDC-9BAD-4AD6-85F7-383222734C54"
-            shouldBeEnabled = "Yes"
+            uuid = "E0C3CBB7-4D25-489A-A625-32189B54E61C"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SpotifyAPIInvestigation/SpotifyManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "63"
-            endingLineNumber = "63"
-            landmarkName = "appRemote(_:didDisconnectWithError:)"
+            startingLineNumber = "50"
+            endingLineNumber = "50"
+            landmarkName = "authorizeAndPlayURI(playUrl:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "5C92BA32-D2E5-4640-B62B-AB8EDFCC5451"
-            shouldBeEnabled = "Yes"
+            uuid = "CEEDD765-743A-43EE-B16B-6451975A1E0D"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "SpotifyAPIInvestigation/SpotifyManager.swift"
+            filePath = "SpotifyAPIInvestigation/ContentView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "67"
-            endingLineNumber = "67"
-            landmarkName = "appRemote(_:didFailConnectionAttemptWithError:)"
+            startingLineNumber = "164"
+            endingLineNumber = "164"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7CCB72B4-EDE1-4699-B374-7E6A0DFECBBC"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SpotifyAPIInvestigation/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "220"
+            endingLineNumber = "220"
+            landmarkName = "fetchImage(for:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "2AA4DBFC-B547-44C9-A031-3E274E3795EC"
+            uuid = "2DAA7910-6E44-42BB-A9A4-33D49B2FF345"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SpotifyAPIInvestigation/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "217"
+            endingLineNumber = "217"
+            landmarkName = "fetchImage(for:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.ExceptionBreakpoint">
+         <BreakpointContent
+            uuid = "18628719-9DEC-4AC1-8313-EDF404472A27"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "SpotifyAPIInvestigation/SpotifyManager.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "188"
-            endingLineNumber = "188"
-            landmarkName = "searchTrack(query:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "2AA4DBFC-B547-44C9-A031-3E274E3795EC - fd265bd15c54afcd"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SpotifyAPIInvestigation.SpotifyManager.searchTrack(query: Swift.String) async throws -&gt; Swift.Array&lt;SpotifyAPIInvestigation.TrackItem&gt;"
-                  moduleName = "SpotifyAPIInvestigation"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/osanaikoutarou/ios/SpotifyAPIInvestigation/SpotifyAPIInvestigation/SpotifyManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "188"
-                  endingLineNumber = "188">
-               </Location>
-               <Location
-                  uuid = "2AA4DBFC-B547-44C9-A031-3E274E3795EC - 5878b242cbb6f6be"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "(1) suspend resume partial function for SpotifyAPIInvestigation.SpotifyManager.searchTrack(query: Swift.String) async throws -&gt; Swift.Array&lt;SpotifyAPIInvestigation.TrackItem&gt;"
-                  moduleName = "SpotifyAPIInvestigation"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/osanaikoutarou/ios/SpotifyAPIInvestigation/SpotifyAPIInvestigation/SpotifyManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "188"
-                  endingLineNumber = "188">
-               </Location>
-            </Locations>
+            breakpointStackSelectionBehavior = "1"
+            scope = "1"
+            stopOnStyle = "0">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
