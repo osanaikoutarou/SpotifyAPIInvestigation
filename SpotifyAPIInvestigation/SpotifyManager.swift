@@ -27,9 +27,8 @@ class SpotifyManager: NSObject {
             redirectURL: SpotifyRedirectURL
         )
         appRemote = SPTAppRemote(configuration: self.configuration, logLevel: .debug)
-        appRemote.connectionParameters.accessToken = self.accessToken
+
         super.init()
-        appRemote.delegate = self
     }
 
     var accessToken: String? {
@@ -39,19 +38,21 @@ class SpotifyManager: NSObject {
         }
     }
 
+    //MARK: -
+
     func authorizeAndPlayURI() {
         appRemote.authorizeAndPlayURI("", asRadio: true)
     }
 
     func authorizeAndPlayURI(playUrl: String) {
-        //            appRemote.authorizeAndPlayURI(playUrl, asRadio: true)
-        guard let playerAPI = appRemote.playerAPI else {
-            print("playerAPI is nil")
-            return
-        }
-        appRemote.playerAPI?.play(playUrl, asRadio: true, callback: { result, error in
-            print(error?.localizedDescription)
-        })
+        appRemote.authorizeAndPlayURI(playUrl, asRadio: true)
+//        guard let playerAPI = appRemote.playerAPI else {
+//            print("playerAPI is nil")
+//            return
+//        }
+//        appRemote.playerAPI?.play(playUrl, asRadio: true, callback: { result, error in
+//            print(error?.localizedDescription)
+//        })
     }
 
     func setSecret(value: String) {
@@ -59,38 +60,38 @@ class SpotifyManager: NSObject {
     }
 }
 
-extension SpotifyManager: SPTAppRemoteDelegate {
-    // SPTAppRemoteDelegate methods
-    func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
-        print("Connected")
+//extension SpotifyManager: SPTAppRemoteDelegate {
+//    // SPTAppRemoteDelegate methods
+//    func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
+//        print("Connected")
+//
+//        appRemote.playerAPI?.delegate = self
+//        appRemote.playerAPI?.subscribe(toPlayerState: { (result, error) in
+//            if let error = error {
+//                debugPrint(error.localizedDescription)
+//            }
+//        })
+//
+//        NotificationCenter.default.post(name: Notification.Name.SPTAppRemoteConnected, object: self)
+//    }
+//    func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
+//        print("Disconnected")
+//        NotificationCenter.default.post(name: Notification.Name.SPTAppRemoteDisConnected, object: self)
+//
+//    }
+//
+//    func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
+//        print("Failed to connect", error?.localizedDescription)
+//    }
+//}
 
-        appRemote.playerAPI?.delegate = self
-        appRemote.playerAPI?.subscribe(toPlayerState: { (result, error) in
-            if let error = error {
-                debugPrint(error.localizedDescription)
-            }
-        })
-
-        NotificationCenter.default.post(name: Notification.Name.SPTAppRemoteConnected, object: self)
-    }
-    func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: Error?) {
-        print("Disconnected")
-        NotificationCenter.default.post(name: Notification.Name.SPTAppRemoteDisConnected, object: self)
-
-    }
-
-    func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: Error?) {
-        print("Failed to connect", error?.localizedDescription)
-    }
-}
-
-extension SpotifyManager: SPTAppRemotePlayerStateDelegate {
-    func playerStateDidChange(_ playerState: any SPTAppRemotePlayerState) {
-        print("playerStateDidChange", playerState)
-        self.currentSPTAppRemotePlayerState = playerState
-        NotificationCenter.default.post(name: Notification.Name.playerStateDidChange, object: self)
-    }
-}
+//extension SpotifyManager: SPTAppRemotePlayerStateDelegate {
+//    func playerStateDidChange(_ playerState: any SPTAppRemotePlayerState) {
+//        print("playerStateDidChange", playerState)
+//        self.currentSPTAppRemotePlayerState = playerState
+//        NotificationCenter.default.post(name: Notification.Name.playerStateDidChange, object: self)
+//    }
+//}
 
 // Web API
 // 1.再生制御
@@ -151,14 +152,14 @@ struct Artist: Decodable {
     let type: String
     let uri: String
 }
-struct TrackItem: Decodable {
+struct TrackItem: Decodable, Identifiable {
     let album: Album
     let artists: [Artist]
     let disc_number: Int
     let duration_ms: Int
     let explicit: Bool
     let external_ids: ExternalID
-    let external_urls: ExternalURL
+    var external_urls: ExternalURL
     let href: String
     let id: String
     let is_local: Bool
@@ -167,12 +168,12 @@ struct TrackItem: Decodable {
     let preview_url: String?
     let track_number: Int
     let type: String
-    let uri: String
+    var uri: String
 }
 struct Album: Decodable {
     let album_type: String
     let total_tracks: Int
-    let external_urls: ExternalURL
+    var external_urls: ExternalURL
     let href: String
     let id: String
     let images: [Image]
@@ -186,7 +187,7 @@ struct ExternalID: Decodable {
     let isrc: String?
 }
 struct ExternalURL: Decodable {
-    let spotify: String
+    var spotify: String
 }
 struct Image: Decodable {
     let url: String
@@ -212,9 +213,11 @@ extension SpotifyManager {
 
         let parameters: [String: String] = [
             "q": query,
-            "market": "JP",
             "type": "track",
-            "limit": "10"
+            "market": "JP",
+            "limit": "10",
+            "offset": "0",
+            "include_external": "audio"
         ]
 
         let request = AF.request("https://api.spotify.com/v1/search",
@@ -229,13 +232,17 @@ extension SpotifyManager {
                        data: response.data,
                        showCurl: true)
 
-        // crash for debug
-        let d = try! JSONDecoder().decode(SearchResponse.self, from: response.data!)
-
         switch response.result {
         case .success(let searchResponse):
             return searchResponse.tracks.items
         case .failure(let error):
+            print(error.localizedDescription)
+
+            if response.response?.statusCode != 403 && response.response?.statusCode != 400 {
+                // crash for debug
+                let d = try! JSONDecoder().decode(SearchResponse.self, from: response.data!)
+            }
+
             throw error
         }
     }

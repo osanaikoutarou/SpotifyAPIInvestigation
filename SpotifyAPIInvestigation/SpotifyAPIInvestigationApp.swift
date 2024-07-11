@@ -34,13 +34,14 @@ struct SpotifyAPIInvestigationApp: App {
         WindowGroup {
             ContentView()
                 .onOpenURL { url in
+                    // リダイレクト処理 -> token保持
+
                     print("onOpenURL", url)
                     // spotify-ios-quick-start://spotify-login-callback/?spotify_version=8.9.50.491#access_token=BQDdQjk4EPUrZpQanUYvDH3RKubXmubP3sTiE0hBQBCW_9SdXHx5Y-vjQ4WlgFyOQ24niuonQCneaso13ZoC3eM7Op25tx0oiM1GnPRCC66_lV88inr4KY0DooyWBOTFrXsdIBs6_cY9BmocSIXk2vAOZm8aYspPpFq_WKsNpRRdQ_hXpnd9I2Jvmr_hM0wkr3zx&token_type=Bearer&expires_in=3600
 
                     let parameters = SpotifyManager.shared.appRemote.authorizationParameters(from: url)
 
                     if let access_token = parameters?[SPTAppRemoteAccessTokenKey] {
-                        SpotifyManager.shared.appRemote.connectionParameters.accessToken = access_token
                         SpotifyManager.shared.accessToken = access_token
                     } else if (parameters?[SPTAppRemoteErrorDescriptionKey]) != nil {
                         // Show the error
@@ -59,7 +60,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        print("didFinishLaunchingWithOptions")
+        print("AppDelegate: didFinishLaunchingWithOptions")
         return true
     }
 }

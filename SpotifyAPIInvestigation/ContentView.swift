@@ -10,37 +10,34 @@ import SpotifyiOS
 
 struct ContentView: View {
 
-    @State var trackItems: [TrackItem] = []
-    @State var secret: String = "f38984ba02e6490eb9bae628be68cf87"   //78fc
+    @StateObject var viewModel: ViewModel
+    @State var infoTrackItem: TrackItem?
 
-    @State var token: String?
-    @State var searchQuery: String = "artist=Ado"
-    @State var playUrl: String = ""
-    @State var isConnected: Bool = false
-    @State var currentTrackImage: UIImage? = nil
+    init() {
+        let viewModel = ViewModel()
+        viewModel.inject(appRemote: SpotifyManager.shared.appRemote)
+        self._viewModel = StateObject(wrappedValue: viewModel)
+    }
 
     var body: some View {
         ScrollView {
             content
                 .onAppear {
-                    SpotifyManager.shared.setSecret(value: secret)
+                    SpotifyManager.shared.setSecret(value: viewModel.secret)
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: Notification.Name.SPTAppRemoteConnected)
                 ) { _ in
-                    isConnected = true
+                    viewModel.isConnected = true
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: Notification.Name.SPTAppRemoteDisConnected)
                 ) { _ in
-                    isConnected = false
+                    viewModel.isConnected = false
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: Notification.Name.playerStateDidChange)
                 ) { _ in
-                    if let currentSPTAppRemotePlayerState = SpotifyManager.shared.currentSPTAppRemotePlayerState {
-                        fetchImage(for: currentSPTAppRemotePlayerState.track)
-                    }
                 }
         }
     }
@@ -48,71 +45,219 @@ struct ContentView: View {
     @ViewBuilder
     var content: some View {
         VStack {
-            TextField("input secret", text: $secret)
-                .border(.gray)
-                .onChange(of: secret) { newValue in
-                    SpotifyManager.shared.setSecret(value: newValue)
+            VStack {
+                Text("WebAPI経路")
+
+                // Secret
+                HStack {
+                    Text("secret（Web API）")
+                    TextField("", text: $viewModel.secret)
+                        .border(.gray)
+                        .onChange(of: viewModel.secret) { newValue in
+                            SpotifyManager.shared.setSecret(value: newValue)
+                        }
                 }
                 .padding(.bottom, 20)
 
-            Button {
-                Task {
-                    do {
-                        token = try await SpotifyManager.shared.fetchAccessToken()
-                    } catch {
-                        print(error.localizedDescription)
+                // Fetch Token (WebAPI)
+                VStack {
+                    Button {
+                        Task {
+                            do {
+                                viewModel.token = try await SpotifyManager.shared.fetchAccessToken()
+                            } catch {
+                                print(error.localizedDescription)
+                            }
+                        }
+                    } label: {
+                        VStack {
+                            Text("fetch access token (WebAPI)")
+                        }
+                    }
+
+                    Group {
+                        if viewModel.token != nil {
+                            Text("token OK")
+                        } else {
+                            Text("token 未取得")
+                        }
                     }
                 }
-            } label: {
+            }
+            .frame(maxWidth: .infinity)
+            .border(.gray)
+            .padding(.bottom, 20)
+
+            VStack {
+                Text("SDK経路")
+                // Authorize (iOS SDK)
                 VStack {
-                    Text("fetch access token (WebAPI)")
+                    Button {
+                        SpotifyManager.shared.authorizeAndPlayURI()
+                    } label: {
+                        VStack {
+                            Text("authorize (iOS SDK)")
+                        }
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .border(.gray)
+            .padding(.bottom, 20)
+
+            VStack {
+                Text("楽曲操作のための接続")
+                // Connecting
+                connectingView
+                    .padding(20)
+            }
+            .frame(maxWidth: .infinity)
+            .border(.gray)
+            .padding(.bottom, 30)
+
+            // Search
+            searchView
+
+            // Current Track
+            if let currentTrackImage = viewModel.currentTrackImage {
+                SpotifyPlayingImage(image: currentTrackImage)
+                    .frame(width: 30, height: 30)
+            }
+            if let track = viewModel.currentTrack {
+                VStack {
+                    Text(track.name)
+                    Text(track.album.name)
+                    Text(track.artist.name)
+                    Text(track.uri)
+                }
+                .font(.system(size: 11))
+            }
+
+            Divider()
+
+            HStack {
+                TextField("input URL", text: $viewModel.playUrl)
+                    .border(.gray)
+
+                Button {
+                    if viewModel.playUrl.isEmpty {
+                        SpotifyManager.shared.authorizeAndPlayURI()
+                    } else {
+                        SpotifyManager.shared.authorizeAndPlayURI(playUrl: viewModel.playUrl)
+                    }
+                } label: {
+                    Text("uri指定でplay")
+                }
+            }
+            .padding(.bottom, 20)
+
+        }
+        .padding(10)
+    }
+
+    @ViewBuilder
+    var searchView: some View {
+        Button {
+            Task {
+                do {
+                    viewModel.trackItems =  try await SpotifyManager.shared.searchTrack(query: viewModel.searchQuery)
+                    print(viewModel.trackItems)
+                } catch {
+                    print(error.localizedDescription)
+                }
+            }
+        } label: {
+            Text("Search Musics")
+        }
+        TextField("Search Query", text: $viewModel.searchQuery)
+            .frame(alignment: .center)
+            .border(.gray)
+            .padding(.bottom, 5)
+        Text("ex q=remaster track:Doxy artist:Miles Davis")
+            .font(.system(size: 12))
+            .foregroundStyle(.gray)
+            .padding(.bottom, 20)
+
+        Text("Search Result")
+        ScrollView {
+            LazyVStack {
+                ForEach(viewModel.trackItems) { trackItem in
+                    searchCell(trackItem: trackItem)
+                }
+            }
+        }
+        .frame(width: UIScreen.main.bounds.width - 20, height: 150)
+        .border(.gray)
+        .padding(.bottom, 20)
+    }
+
+    @ViewBuilder
+    func searchCell(trackItem: TrackItem) -> some View {
+        HStack(spacing: 10) {
+            Button {
+                print(trackItem.uri)
+                SpotifyManager.shared.authorizeAndPlayURI(playUrl: trackItem.uri)
+            } label: {
+                HStack {
+                    VStack {
+                        Text(trackItem.name + "(" + trackItem.artists.first!.name + ")")
+                            .font(.system(size: 11))
+                        Text("URI:" + trackItem.uri)
+                            .font(.system(size: 11))
+                        Spacer().frame(height: 10)
+                    }
+                }
+            }
+
+            if let imageUrl = URL(string: trackItem.album.images.first?.url ?? "") {
+                AsyncImage(url: imageUrl) { image in
+                    image.resizable()
+                } placeholder: {
+                    ProgressView()
+                }
+                .frame(width: 50, height: 50)
+            }
+
+            Button {
+                infoTrackItem = trackItem
+            } label: {
+                Text("info")
+                    .font(.system(size: 11))
+            }
+            .sheet(item: $infoTrackItem) { trackItem in
+                InfoView(trackItem: trackItem)
+            }
+        }
+    }
+
+
+    @ViewBuilder
+    var connectingView: some View {
+        VStack {
+            HStack(spacing: 20) {
+                Button {
+                    SpotifyManager.shared.appRemote.connect()
+                } label: {
+                    Text("Connect")
+                }
+
+                Button {
+                    SpotifyManager.shared.appRemote.disconnect()
+                } label: {
+                    Text("Disconnect")
                 }
             }
 
             Group {
-                if token != nil {
-                    Text("token OK")
+                if viewModel.isConnected {
+                    Text("connect OK")
                 } else {
-                    Text("token NG")
+                    Text("connect 未")
                 }
             }
             .padding(.bottom, 20)
 
-            Button {
-                SpotifyManager.shared.authorizeAndPlayURI()
-            } label: {
-                VStack {
-                    Text("authorize (iOS SDK)")
-                }
-            }
-
-            searchView
-
-            if let currentTrackImage {
-                SpotifyPlayingImage(image: currentTrackImage)
-                    .frame(width: 30, height: 30)
-            }
-
-            connectingView
-
-            HStack {
-                TextField("input URL", text: $playUrl)
-                    .border(.gray)
-
-                Button {
-                    if playUrl.isEmpty {
-                        SpotifyManager.shared.authorizeAndPlayURI()
-                    } else {
-                        SpotifyManager.shared.appRemote.playerAPI?.play(playUrl, asRadio: true, callback: { a, error in
-                            print(a, error?.localizedDescription)
-                        })
-                    }
-                } label: {
-                    Text("play example")
-                }
-            }
-            .padding(.bottom, 20)
-
+            // controller
             HStack(spacing: 20) {
                 Button {
                     SpotifyManager.shared.appRemote.playerAPI?.resume()
@@ -128,99 +273,111 @@ struct ContentView: View {
                 } label: {
                     Text("Stop")
                 }
-
             }
         }
-    }
-
-    @ViewBuilder
-    var searchView: some View {
-        Button {
-            Task {
-                do {
-                    trackItems =  try await SpotifyManager.shared.searchTrack(query: searchQuery)
-                    print(trackItems)
-                } catch {
-                    print(error.localizedDescription)
-                }
-            }
-        } label: {
-            Text("Search Musics")
-        }
-        TextField("Search Query", text: $searchQuery)
-            .frame(alignment: .center)
-            .border(.gray)
-            .padding(.bottom, 20)
-
-        Text("Search Result")
-        ScrollView {
-            LazyVStack {
-                ForEach(0..<trackItems.count, id: \.self) { index in
-                    Button {
-                        print(trackItems[index].uri)
-                        SpotifyManager.shared.authorizeAndPlayURI(playUrl: trackItems[index].uri)
-                    } label: {
-                        HStack {
-
-
-                            VStack {
-                                Text(trackItems[index].name + "(" + trackItems[index].artists.first!.name + ")")
-                                    .font(.system(size: 11))
-                                Text("URI:" + trackItems[index].uri)
-                                    .font(.system(size: 11))
-                                Spacer().frame(height: 10)
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
-        .frame(width: UIScreen.main.bounds.width - 20, height: 150)
-        .border(.gray)
-        .padding(.bottom, 20)
-    }
-
-
-    @ViewBuilder
-    var connectingView: some View {
-        Button {
-            SpotifyManager.shared.appRemote.connect()
-        } label: {
-            Text("Connect")
-        }
-        .padding(.bottom, 10)
-
-        Button {
-            SpotifyManager.shared.appRemote.disconnect()
-        } label: {
-            Text("Disconnect")
-        }
-        .padding(.bottom, 10)
-
-        Group {
-            if isConnected {
-                Text("connect OK")
-            } else {
-                Text("connect NG")
-            }
-        }
-        .padding(.bottom, 20)
     }
 
 }
 
-extension ContentView {
-    func fetchImage(for track: SPTAppRemoteTrack) {
-        SpotifyManager.shared.appRemote.imageAPI?.fetchImage(forItem: track, with: CGSize(width: 50, height: 50), callback: { (image, error) in
-            if let error = error {
-                print("Error fetching track image: \(error.localizedDescription)")
-            } else if let image = image as? UIImage {
-                DispatchQueue.main.async {
-                    self.currentTrackImage = image
+struct InfoView: View {
+    @State var trackItem: TrackItem
+
+    var body: some View {
+        VStack {
+            HStack {
+                Text("id")
+                Text(trackItem.id)
+            }
+            HStack {
+                Text("album name")
+                Text(trackItem.album.name)
+            }
+            HStack {
+                Text("artist name")
+                Text(trackItem.artists.first?.name ?? "-")
+            }
+            HStack {
+                Text("discNumber")
+                Text("\(trackItem.disc_number)")
+            }
+            HStack {
+                Text("duration(ms)")
+                Text("\(trackItem.duration_ms)")
+            }
+            HStack {
+                Text("explicit")
+                Text("\(trackItem.explicit)")
+            }
+            HStack {
+                Text("external_ids")
+                Text("\(trackItem.external_ids.isrc)")
+            }
+            HStack {
+                Text("external_urls")
+                Text("\(trackItem.external_urls.spotify)")
+                Button {
+                    UIPasteboard.general.string = trackItem.external_urls.spotify
+                } label: {
+                    Text("copy")
+                }
+
+            }
+            HStack {
+                Text("href")
+                Text(trackItem.href)
+                Button {
+                    UIPasteboard.general.string = trackItem.href
+                } label: {
+                    Text("copy")
                 }
             }
-        })
+            HStack {
+                Text("is_local")
+
+                Text("\(trackItem.is_local)")
+            }
+            HStack {
+                Text("name")
+
+                Text(trackItem.name)
+            }
+            HStack {
+                Text("popularity")
+
+                Text("\(trackItem.popularity)")
+            }
+            HStack {
+                Text("preview_url")
+
+                Text("\(trackItem.preview_url)")
+            }
+            HStack {
+                Text("track_number")
+
+                Text("\(trackItem.track_number)")
+            }
+            HStack {
+                Text("type")
+
+                Text(trackItem.type)
+            }
+            HStack {
+                Text("uri")
+                Text(trackItem.uri)
+                Button {
+                    UIPasteboard.general.string = trackItem.uri
+                } label: {
+                    Text("copy")
+                }
+            }
+
+            Button {
+                SpotifyManager.shared.authorizeAndPlayURI(playUrl: trackItem.uri)
+            } label: {
+                Text("play")
+            }
+        }
+        .font(.system(size: 12))
     }
 }
 
