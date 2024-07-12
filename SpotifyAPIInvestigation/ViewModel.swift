@@ -9,7 +9,7 @@ import Foundation
 import SpotifyiOS
 
 class ViewModel: NSObject, ObservableObject {
-    @Published var secret: String = "f38984ba02e6490eb9bae628be68cf87"   //78fc
+    @Published var secret: String
 
     @Published var currentSPTAppRemotePlayerState: SPTAppRemotePlayerState?
     @Published var currentTrack: SPTAppRemoteTrack?
@@ -20,6 +20,10 @@ class ViewModel: NSObject, ObservableObject {
     @Published var searchQuery: String = "track:怪獣の花唄"
     @Published var playUrl: String = ""
     @Published var isConnected: Bool = false
+
+    override init() {
+        secret = decryptedString()
+    }
 
     func inject(appRemote: SPTAppRemote) {
         appRemote.delegate = self
